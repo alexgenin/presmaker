@@ -98,7 +98,6 @@ else
   fi
 
   if [[ ! -e "./info.pmk" ]]; then
-    cp "/usr/share/presmaker/info_default.pmk" "./info.pmk"
     echo_default_info_pmk > "./info.pmk"
     
     source "./info.pmk"
