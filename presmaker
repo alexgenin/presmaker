@@ -27,7 +27,14 @@ function cleanup() {
 if [[ -n "$1" ]]; then
   source "$1"
 else
-  echo "No info file provided, creating a default one."
+  echo "No info file provided. Trying ./info.pmk." 
+  
+  if [[ -e "./info.pmk" ]]; then 
+    source "./info.pmk"
+  else 
+    "./info.pmk not found, creating default directory structure."
+  fi
+
   if [[ ! -e "./info.pmk" ]]; then
     cp "/usr/share/presmaker/info_default.pmk" "./info.pmk"
     source "./info.pmk"
@@ -58,8 +65,9 @@ else
     echo "" 
     echo "Some tags can be replaced in the text fields of svg files. See the file"
     echo "info.pmk for more information"
+    
+    exit 0
   fi
-  exit 0
 fi
 RESDIRTMP="${RESDIR}_bak"
 
