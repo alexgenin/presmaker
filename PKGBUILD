@@ -11,7 +11,7 @@ makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=(presmaker info.pmk blank_slide.svg)
+source=(presmaker info_default.pmk blank_slide.svg)
 md5sums=('SKIP' 'SKIP' 'SKIP')
 
 package() {

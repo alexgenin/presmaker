@@ -1,5 +1,7 @@
 #!/bin/bash
 # 
+# Alexandre Génin, 2018. MIT License.
+# 
 TMPDIR="/tmp/tmpfiles_$RANDOM"
 mkdir ${TMPDIR}
 mkdir "${TMPDIR}/svg"
@@ -9,7 +11,7 @@ trap interrupt INT
 
 function interrupt() { 
   echo "Got Ctrl+C ! Cleaning up and quitting..."
-  cleanup()
+  cleanup
   exit 1
 }
 
@@ -33,7 +35,7 @@ else
     mkdir "$RESDIR"
     echo "Creating slides dir $FILESDIR"
     mkdir "$FILESDIR"
-    echo "Creating default slide $FILESDIR"
+    echo "Creating default slide"
     cp "/usr/share/presmaker/blank_slide.svg" "./$FILESDIR/00_00_first_slide.svg"
     echo ""
     echo "Setup done, now edit ./$FILESDIR/00_00_first_slide.svg to start working"
@@ -50,6 +52,9 @@ else
     echo ""
     echo "Running presmaker again will produce a pdf file with 6 slides, "
     echo "respecting the bash sorting order of svg files."
+    echo "" 
+    echo "You can put images and other files in ./$RESDIR and link them in " 
+    echo "inkscape svgs. Raster images will ba automatically resized."
     echo "" 
     echo "Some tags can be replaced in the text fields of svg files. See the file"
     echo "info.pmk for more information"
