@@ -1,6 +1,6 @@
 # Maintainer: Alexandre Génin <bellette *pwet* tuxfamily[dot]org>
 pkgname=presmaker
-pkgver=2
+pkgver=2.0.0
 pkgrel=1
 pkgdesc="Makes a presentation from svg files"
 arch=('any')
