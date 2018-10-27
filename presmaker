@@ -64,7 +64,9 @@ else
     echo "inkscape svgs. Raster images will ba automatically resized."
     echo "" 
     echo "Some tags can be replaced in the text fields of svg files. See the file"
-    echo "info.pmk for more information"
+    echo "info.pmk for more information."
+    echo "" 
+    echo "Re-run presmaker to create slides"
     
     exit 0
   fi
