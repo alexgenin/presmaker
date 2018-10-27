@@ -1,7 +1,11 @@
 #!/usr/bin/presmaker 
+# 
+# This file contains some information about the presentation in the 
+# current directory. It will be sourced by bash, so you can add any variable 
+# definition and commands. 
 
-# Info file for this presentation
-author="$USER"
+# Basid information about the presentation
+author="$USER" 
 presdate="$(date +%d\\/%m\\/%Y)"
 
 # Build-related variables
@@ -10,6 +14,8 @@ RESDIR='./res'
 OUTFILE="$(pwd)/slides.pdf"
 RASTERMAXRES='1280'
 
+# presmaker will replace some text fields by the following data: 
+# 
 # Default tags reminder: 
 # Date                    ##DATE##
 # Author                  ##AUTHOR##
@@ -19,8 +25,8 @@ RASTERMAXRES='1280'
 # Please escape special chars which could break the string replacement 
 # with sed (e.g. "\"). 
 # 
-
-# Put your custom tags here: 
+# 
+# You can add custom tags using the following arrays: 
 CUSTOMTAGS=( "##PTITLE1##" \
              "##PTITLE2##" )
 CUSTOMVALS=( "Introduction" \
