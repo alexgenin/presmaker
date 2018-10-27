@@ -1,0 +1,26 @@
+#!/usr/bin/presmaker 
+
+# Info file for this presentation
+author="$USER"
+presdate="$(date +%d\\/%m\\/%Y)"
+
+# Build-related variables
+FILESDIR='./slides'
+RESDIR='./res'
+OUTFILE="$(pwd)/slides.pdf"
+RASTERMAXRES='1280'
+
+# Default tags reminder: 
+# date          ##DATE##
+# author        ##AUTHOR##
+# total pages   ##TP##
+# curr page     ##CP##
+# 
+# Please escape special chars
+# 
+
+# Put your custom tags here: 
+CUSTOMTAGS=( "PTITLE1" \
+             "PTITLE2" )
+CUSTOMVALS=( "Introduction" \
+             "Title of Part 2")

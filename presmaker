@@ -1,0 +1,81 @@
+#!/bin/bash
+# 
+TMPDIR="/tmp/tmpfiles_$RANDOM"
+mkdir ${TMPDIR}
+mkdir "${TMPDIR}/svg"
+
+if [[ -n "$1" ]]; then
+  source "$1"
+else
+  echo "No info file provided, creating the default one."
+  if [[ ! -e "./info.pmk" ]]; then
+    cp "/usr/share/presmaker/info_default.pmk" "./info.pmk"
+  fi
+  exit 0
+fi
+RESDIRTMP="${RESDIR}_bak"
+
+# Look for slides in given dir
+FILES="$(ls $FILESDIR | egrep '.svg$')"
+if [[ $( find ${FILESDIR} -type f | wc -l ) == 0 ]]; then
+  echo "No slides found in ${FILESDIR}"
+  exit
+fi
+
+# Resize images in resources dir 
+cp -r "$RESDIR" "$RESDIRTMP"
+echo 'Resizing images:'
+for i in $(find ${RESDIR} -type f); do
+  iext="${i##*.}"
+  if [[ $(echo $iext | egrep -Ei 'png|jpg|tif|bmp') ]]; then
+    iwidth=$(exiftool -S -ImageWidth ${i} |cut -f2 -d' ')
+    iheight=$(exiftool -S -ImageHeight ${i} |cut -f2 -d' ')
+    if [[ $iwidth -gt $RASTERMAXRES || $iheight -gt $RASTERMAXRES ]]; then
+      echo "  $(basename $i)"
+      convert ${i} -resize $RASTERMAXRES "${i}_tmp"
+      mv "${i}_tmp" ${i}
+    fi
+  fi
+done
+
+# Process slides
+NSLIDES=$(echo "$FILES" | wc -w)
+CURSLIDE=1
+echo 'Processing slides:'
+for i in ${FILES[*]}; do
+  echo "  $FILESDIR/$i"
+  CURFILE="$FILESDIR""/""$i"
+  CURTMP="$TMPDIR/svg/$i"
+  TMPOUT="$TMPDIR""/""$(basename $i .svg)"".pdf"
+  
+  cp "$CURFILE" "$CURTMP"
+  
+  # Process default tags
+  sed -i "s/##DATE##/$presdate/" "$CURTMP" # Date
+  sed -i "s/##AUTHOR##/$author/" "$CURTMP" # Author
+  sed -i "s/##TP##/"$NSLIDES"/" "$CURTMP"  # Total number of slides
+  sed -i "s/##CP##/$CURSLIDE/" "$CURTMP"   # Current slide number
+  
+  # Process custom tags 
+  for tag in $(seq 0 $(( ${#CUSTOMTAGS[@]} - 1 ))); do 
+    curtag=${CUSTOMTAGS[$tag]}
+    curval=${CUSTOMVALS[$tag]}
+    sed -i "s/$curtag/$curval/g" "$CURTMP"
+  done
+  
+  CURSLIDE=$(( $CURSLIDE + 1 )) # Move on to next slide
+  
+  # Render slide
+  inkscape -C -A "$TMPOUT" "$CURTMP";
+done
+
+echo "Merging slides"
+pdftk $TMPDIR/*.pdf cat output ${OUTFILE}
+
+# Clean up
+rm -r "$RESDIR" 
+mv "$RESDIRTMP" "$RESDIR"
+
+echo "Created ${OUTFILE}"
+
+exit 0
