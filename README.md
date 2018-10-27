@@ -30,5 +30,5 @@ An PKGBUILD is also available for Arch Linux users.
 ## Usage 
 
 Using a command-line, go to an empty directory, then run `presmaker`. The 
-script will create appropriate directories, then give you instructions. 
-
+script will create appropriate directories, then give you instructions on 
+how to edit slides. 
