@@ -2,6 +2,17 @@
 # 
 # Alexandre Génin, 2018. MIT License.
 # 
+
+# Check that necessary software is present 
+function depcheck_error { 
+  echo "$1 not found, please install it."; exit 1 
+}
+which inkscape || depcheck_error "Inkscape"
+which exiftool || depcheck_error "Exiftool"
+which pdftk    || depcheck_error "pdftk"
+which convert  || depcheck_error "ImageMagick (convert)"
+
+# Create temp directory
 TMPDIR="/tmp/tmpfiles_$RANDOM"
 mkdir ${TMPDIR}
 mkdir "${TMPDIR}/svg"
@@ -23,8 +34,8 @@ function cleanup() {
 }
 
 function echo_default_info_pmk { 
-echo '
-#!/usr/bin/presmaker 
+echo \
+'#!/usr/bin/presmaker 
 # 
 # This file contains some information about the presentation in the 
 # current directory. It will be sourced by bash, so you can add any variable 
@@ -89,15 +100,13 @@ echo \
 if [[ -n "$1" ]]; then
   source "$1"
 else
-  echo "No info file provided. Trying ./info.pmk." 
+  echo "No info file provided. Trying the default ./info.pmk." 
   
   if [[ -e "./info.pmk" ]]; then 
     source "./info.pmk"
   else 
-    "./info.pmk not found, creating default directory structure."
-  fi
-
-  if [[ ! -e "./info.pmk" ]]; then
+    echo "./info.pmk not found, creating default directory structure."
+    
     echo_default_info_pmk > "./info.pmk"
     source "./info.pmk"
     
@@ -111,11 +120,11 @@ else
     echo_default_slide > "./slides/00_00_first_slide.svg"
     
     echo ""
-    echo "Setup done, now edit ./$FILESDIR/00_00_first_slide.svg to start working"
+    echo "Setup done, now edit $FILESDIR/00_00_first_slide.svg to start working"
     echo "on your slides."
     echo ""
-    echo "Create a new slide by adding files in the directory ./$FILESDIR. For"
-    echo "example, the files in ./$FILESDIR could look like this: "
+    echo "Create a new slide by adding files in the directory $FILESDIR. For"
+    echo "example, the files in $FILESDIR could look like this: "
     echo "  00_00_first_slide.svg"
     echo "  00_02_some_background.svg"
     echo "  00_04_intro.svg"
@@ -127,8 +136,9 @@ else
     echo "corresponding to each svg file."
     echo "The order of the slides respects the bash sorting order of svg files."
     echo "" 
-    echo "You can put images and other files in ./$RESDIR and link them in " 
-    echo "inkscape svgs. Raster images will be automatically resized."
+    echo "You can put images and other files in $RESDIR and use them in " 
+    echo "inkscape svgs. Raster images will be automatically resized in the " 
+    echo "final presentation."
     echo "" 
     echo "Some tags can be replaced in the text fields of svg files. See the file"
     echo "info.pmk for more information."
@@ -154,8 +164,8 @@ echo 'Resizing images:'
 for i in $(find ${RESDIR} -type f); do
   iext="${i##*.}"
   if [[ $(echo $iext | egrep -Ei 'png|jpg|tif|bmp') ]]; then
-    iwidth=$(exiftool -S -ImageWidth ${i} |cut -f2 -d' ')
-    iheight=$(exiftool -S -ImageHeight ${i} |cut -f2 -d' ')
+    iwidth=$(exiftool -S -ImageWidth ${i} | cut -f2 -d' ')
+    iheight=$(exiftool -S -ImageHeight ${i} | cut -f2 -d' ')
     if [[ $iwidth -gt $RASTERMAXRES || $iheight -gt $RASTERMAXRES ]]; then
       echo "  $(basename $i)"
       convert ${i} -resize $RASTERMAXRES "${i}_tmp"
@@ -177,10 +187,10 @@ for i in ${FILES[*]}; do
   cp "$CURFILE" "$CURTMP"
   
   # Process default tags
-  sed -i "s/##DATE##/$presdate/" "$CURTMP" # Date
-  sed -i "s/##AUTHOR##/$author/" "$CURTMP" # Author
-  sed -i "s/##TP##/"$NSLIDES"/" "$CURTMP"  # Total number of slides
-  sed -i "s/##CP##/$CURSLIDE/" "$CURTMP"   # Current slide number
+  sed -i "s/##DATE##/$presdate/g" "$CURTMP" # Date
+  sed -i "s/##AUTHOR##/$author/g" "$CURTMP" # Author
+  sed -i "s/##TP##/"$NSLIDES"/g" "$CURTMP"  # Total number of slides
+  sed -i "s/##CP##/$CURSLIDE/g" "$CURTMP"   # Current slide number
   
   # Process custom tags 
   for tag in $(seq 0 $(( ${#CUSTOMTAGS[@]} - 1 ))); do 
