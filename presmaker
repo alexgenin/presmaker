@@ -35,10 +35,10 @@ author="$USER"
 presdate="$(date +%d\\/%m\\/%Y)"
 
 # Build-related variables
-FILESDIR='./slides'
-RESDIR='./res'
+FILESDIR="./slides"
+RESDIR="./res"
 OUTFILE="$(pwd)/slides.pdf"
-RASTERMAXRES='1280'
+RASTERMAXRES="1280"
 
 # presmaker will replace some text fields by the following data: 
 # 
@@ -99,14 +99,17 @@ else
 
   if [[ ! -e "./info.pmk" ]]; then
     echo_default_info_pmk > "./info.pmk"
-    
     source "./info.pmk"
+    
     echo "Creating resource dir $RESDIR"
     mkdir "$RESDIR"
+    
     echo "Creating slides dir $FILESDIR"
     mkdir "$FILESDIR"
+    
     echo "Creating default slide"
     echo_default_slide > "./slides/00_00_first_slide.svg"
+    
     echo ""
     echo "Setup done, now edit ./$FILESDIR/00_00_first_slide.svg to start working"
     echo "on your slides."
@@ -121,15 +124,16 @@ else
     echo "  02_99_conclusions.svg"
     echo ""
     echo "Running presmaker again will produce a pdf file with 6 slides, "
-    echo "respecting the bash sorting order of svg files."
+    echo "corresponding to each svg file."
+    echo "The order of the slides respects the bash sorting order of svg files."
     echo "" 
     echo "You can put images and other files in ./$RESDIR and link them in " 
-    echo "inkscape svgs. Raster images will ba automatically resized."
+    echo "inkscape svgs. Raster images will be automatically resized."
     echo "" 
     echo "Some tags can be replaced in the text fields of svg files. See the file"
     echo "info.pmk for more information."
     echo "" 
-    echo "Re-run presmaker to create slides"
+    echo "Now re-run presmaker to create slides"
     
     exit 0
   fi
