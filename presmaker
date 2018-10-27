@@ -4,12 +4,55 @@ TMPDIR="/tmp/tmpfiles_$RANDOM"
 mkdir ${TMPDIR}
 mkdir "${TMPDIR}/svg"
 
+# We need to trap interruptions to clean up things before quitting
+trap interrupt INT
+
+function interrupt() { 
+  echo "Got Ctrl+C ! Cleaning up and quitting..."
+  cleanup()
+  exit 1
+}
+
+function cleanup() {
+  # Clean up directories
+  echo "Cleaning up..."
+  rm -r "$RESDIR" "$TMPDIR"
+  mv "$RESDIRTMP" "$RESDIR"
+}
+
+
+# Test if the info.pmk file exists
 if [[ -n "$1" ]]; then
   source "$1"
 else
-  echo "No info file provided, creating the default one."
+  echo "No info file provided, creating a default one."
   if [[ ! -e "./info.pmk" ]]; then
     cp "/usr/share/presmaker/info_default.pmk" "./info.pmk"
+    source "./info.pmk"
+    echo "Creating resource dir $RESDIR"
+    mkdir "$RESDIR"
+    echo "Creating slides dir $FILESDIR"
+    mkdir "$FILESDIR"
+    echo "Creating default slide $FILESDIR"
+    cp "/usr/share/presmaker/blank_slide.svg" "./$FILESDIR/00_00_first_slide.svg"
+    echo ""
+    echo "Setup done, now edit ./$FILESDIR/00_00_first_slide.svg to start working"
+    echo "on your slides."
+    echo ""
+    echo "Create a new slide by adding files in the directory ./$FILESDIR. For"
+    echo "example, the files in ./$FILESDIR could look like this: "
+    echo "  00_00_first_slide.svg"
+    echo "  00_02_some_background.svg"
+    echo "  00_04_intro.svg"
+    echo "  01_00_results.svg"
+    echo "  01_02_more_results.svg"
+    echo "  02_99_conclusions.svg"
+    echo ""
+    echo "Running presmaker again will produce a pdf file with 6 slides, "
+    echo "respecting the bash sorting order of svg files."
+    echo "" 
+    echo "Some tags can be replaced in the text fields of svg files. See the file"
+    echo "info.pmk for more information"
   fi
   exit 0
 fi
@@ -24,6 +67,7 @@ fi
 
 # Resize images in resources dir 
 cp -r "$RESDIR" "$RESDIRTMP"
+
 echo 'Resizing images:'
 for i in $(find ${RESDIR} -type f); do
   iext="${i##*.}"

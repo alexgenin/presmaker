@@ -11,16 +11,17 @@ OUTFILE="$(pwd)/slides.pdf"
 RASTERMAXRES='1280'
 
 # Default tags reminder: 
-# date          ##DATE##
-# author        ##AUTHOR##
-# total pages   ##TP##
-# curr page     ##CP##
+# Date                    ##DATE##
+# Author                  ##AUTHOR##
+# Total number of pages   ##TP##
+# Current page number     ##CP##
 # 
-# Please escape special chars
+# Please escape special chars which could break the string replacement 
+# with sed (e.g. "\"). 
 # 
 
 # Put your custom tags here: 
-CUSTOMTAGS=( "PTITLE1" \
-             "PTITLE2" )
+CUSTOMTAGS=( "##PTITLE1##" \
+             "##PTITLE2##" )
 CUSTOMVALS=( "Introduction" \
              "Title of Part 2")
