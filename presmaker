@@ -10,7 +10,7 @@ mkdir "${TMPDIR}/svg"
 trap interrupt INT
 
 function interrupt() { 
-  echo "Got Ctrl+C ! Cleaning up and quitting..."
+  echo "Got Ctrl+C'd ! Cleaning up and quitting..."
   cleanup
   exit 1
 }
@@ -22,6 +22,68 @@ function cleanup() {
   mv "$RESDIRTMP" "$RESDIR"
 }
 
+function echo_default_info_pmk { 
+echo '
+#!/usr/bin/presmaker 
+# 
+# This file contains some information about the presentation in the 
+# current directory. It will be sourced by bash, so you can add any variable 
+# definition and commands. 
+
+# Basid information about the presentation
+author="$USER" 
+presdate="$(date +%d\\/%m\\/%Y)"
+
+# Build-related variables
+FILESDIR='./slides'
+RESDIR='./res'
+OUTFILE="$(pwd)/slides.pdf"
+RASTERMAXRES='1280'
+
+# presmaker will replace some text fields by the following data: 
+# 
+# Default tags reminder: 
+# Date                    ##DATE##
+# Author                  ##AUTHOR##
+# Total number of pages   ##TP##
+# Current page number     ##CP##
+# 
+# Please escape special chars which could break the string replacement 
+# with sed (e.g. "\"). 
+# 
+# 
+# You can add custom tags using the following arrays: 
+CUSTOMTAGS=( "##PTITLE1##" \
+            "##PTITLE2##" )
+CUSTOMVALS=( "Introduction" \
+            "Title of Part 2")
+'
+}
+
+function echo_default_slide { 
+echo \
+'<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="1200" version="1.1" viewBox="0 0 423.33332 317.50001" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<metadata>
+<rdf:RDF>
+<cc:Work rdf:about="">
+<dc:format>image/svg+xml</dc:format>
+<dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+<dc:title/>
+</cc:Work>
+</rdf:RDF>
+</metadata>
+<g transform="translate(0 20.5)">
+<rect y="80.787" width="423.33" height="114.93" color="#000000" color-rendering="auto" fill="#24221c" image-rendering="auto" shape-rendering="auto" solid-color="#000000" style="isolation:auto;mix-blend-mode:normal;paint-order:stroke fill markers"/>
+<flowRoot color="#000000" color-rendering="auto" fill="#333333" font-family="Sans" font-size="14.667px" image-rendering="auto" letter-spacing="0px" shape-rendering="auto" solid-color="#000000" stroke-linejoin="round" stroke-width="1.5118" text-align="end" text-anchor="end" text-rendering="auto" word-spacing="0px" style="block-progression:tb;filter-blend-mode:normal;filter-gaussianBlur-deviation:0;font-variant-east_asian:normal;isolation:auto;line-height:25px;mix-blend-mode:normal;paint-order:stroke fill markers;text-decoration-color:#000000;text-decoration-line:none;text-decoration-style:solid;text-indent:0;text-transform:none;white-space:normal" xml:space="preserve"><flowRegion><rect x="-420" y="162.86" width="1891.4" height="825.71"/></flowRegion><flowPara/></flowRoot>
+<g fill="#ffffff" font-family="Timeless" letter-spacing="0px" shape-rendering="auto" stroke-linejoin="round" text-anchor="end" text-rendering="auto" word-spacing="0px">
+<text x="212.25964" y="132.76901" color="#000000" color-rendering="auto" font-size="21.121px" image-rendering="auto" solid-color="#000000" stroke-width="2.1771" text-align="end" style="isolation:auto;line-height:36.00099182px;mix-blend-mode:normal;paint-order:stroke fill markers;text-decoration-color:#000000;text-decoration-line:none;text-decoration-style:solid;text-indent:0;text-transform:none;white-space:normal" xml:space="preserve"><tspan x="212.25964" y="132.76901" fill="#ffffff" font-family="Sans" stroke-width="2.1771" text-align="center" text-anchor="middle">This is my first slide</tspan></text>
+<text x="211.66377" y="159.60991" color="#000000" color-rendering="auto" font-size="11.846px" image-rendering="auto" solid-color="#000000" stroke-width="1.221" text-align="end" style="isolation:auto;line-height:20.1914978px;mix-blend-mode:normal;paint-order:stroke fill markers;text-decoration-color:#000000;text-decoration-line:none;text-decoration-style:solid;text-indent:0;text-transform:none;white-space:normal" xml:space="preserve"><tspan x="211.66377" y="159.60991" fill="#ffffff" font-family="Sans" stroke-width="1.221" text-align="center" text-anchor="middle">##AUTHOR## - ##DATE##</tspan></text>
+</g>
+</g>
+</svg>
+'
+}
 
 # Test if the info.pmk file exists
 if [[ -n "$1" ]]; then
@@ -37,13 +99,15 @@ else
 
   if [[ ! -e "./info.pmk" ]]; then
     cp "/usr/share/presmaker/info_default.pmk" "./info.pmk"
+    echo_default_info_pmk > "./info.pmk"
+    
     source "./info.pmk"
     echo "Creating resource dir $RESDIR"
     mkdir "$RESDIR"
     echo "Creating slides dir $FILESDIR"
     mkdir "$FILESDIR"
     echo "Creating default slide"
-    cp "/usr/share/presmaker/blank_slide.svg" "./$FILESDIR/00_00_first_slide.svg"
+    echo_default_slide > "./slides/00_00_first_slide.svg"
     echo ""
     echo "Setup done, now edit ./$FILESDIR/00_00_first_slide.svg to start working"
     echo "on your slides."

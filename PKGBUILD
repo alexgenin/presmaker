@@ -11,14 +11,12 @@ makedepends=()
 conflicts=()
 replaces=()
 backup=()
-source=(presmaker info_default.pmk blank_slide.svg)
-md5sums=('SKIP' 'SKIP' 'SKIP')
+source=(presmaker)
+md5sums=('SKIP')
 
 package() {
-  
+
   cd $srcdir
   install -D -m 755 presmaker $pkgdir/usr/bin/presmaker
-  install -D -m 755 info_default.pmk $pkgdir/usr/share/presmaker/info_default.pmk
-  install -D -m 755 blank_slide.svg $pkgdir/usr/share/presmaker/blank_slide.svg
   
 }
