@@ -7,10 +7,11 @@
 function depcheck_error { 
   echo "$1 not found, please install it."; exit 1 
 }
-which inkscape || depcheck_error "Inkscape"
-which exiftool || depcheck_error "Exiftool"
-which pdftk    || depcheck_error "pdftk"
-which convert  || depcheck_error "ImageMagick (convert)"
+
+which inkscape >/dev/null || depcheck_error "Inkscape"
+which exiftool >/dev/null || depcheck_error "Exiftool"
+which pdftk    >/dev/null || depcheck_error "pdftk"
+which convert  >/dev/null || depcheck_error "ImageMagick (convert)"
 
 # Create temp directory
 TMPDIR="/tmp/tmpfiles_$RANDOM"
@@ -65,9 +66,9 @@ RASTERMAXRES="1280"
 # 
 # You can add custom tags using the following arrays: 
 CUSTOMTAGS=( "##PTITLE1##" \
-            "##PTITLE2##" )
+             "##PTITLE2##" )
 CUSTOMVALS=( "Introduction" \
-            "Title of Part 2")
+             "Title of Part 2")
 '
 }
 
