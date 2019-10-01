@@ -152,7 +152,7 @@ fi
 RESDIRTMP="${RESDIR}_bak"
 
 # Look for slides in given dir
-FILES="$(ls $FILESDIR | egrep '.svg$')"
+FILES="$(ls $FILESDIR | grep -E '.svg$')"
 if [[ $( find ${FILESDIR} -type f | wc -l ) == 0 ]]; then
   echo "No slides found in ${FILESDIR}"
   exit
@@ -162,15 +162,16 @@ fi
 cp -r "$RESDIR" "$RESDIRTMP"
 
 echo 'Resizing images:'
-for i in $(find ${RESDIR} -type f); do
+find "${RESDIR}" -type f | while read i; do # shellcheck recommendation
+# for i in $(find ${RESDIR} -type f); do
   iext="${i##*.}"
   if [[ $(echo $iext | egrep -Ei 'png|jpg|tif|bmp') ]]; then
-    iwidth=$(exiftool -S -ImageWidth ${i} | cut -f2 -d' ')
-    iheight=$(exiftool -S -ImageHeight ${i} | cut -f2 -d' ')
-    if [[ $iwidth -gt $RASTERMAXRES || $iheight -gt $RASTERMAXRES ]]; then
-      echo "  $(basename $i)"
-      convert ${i} -resize $RASTERMAXRES "${i}_tmp"
-      mv "${i}_tmp" ${i}
+    iwidth=$(exiftool -S -ImageWidth "${i}" | cut -f2 -d' ')
+    iheight=$(exiftool -S -ImageHeight "${i}" | cut -f2 -d' ')
+    if [[ $iwidth -gt "$RASTERMAXRES" || $iheight -gt "$RASTERMAXRES" ]]; then
+      echo "  $(basename "$i")"
+      convert "${i}" -resize $RASTERMAXRES "${i}_tmp"
+      mv "${i}_tmp" "${i}"
     fi
   fi
 done
@@ -180,18 +181,12 @@ NSLIDES=$(echo "$FILES" | wc -w)
 CURSLIDE=1
 echo 'Processing slides:'
 for i in ${FILES[*]}; do
-  echo "  $FILESDIR/$i"
-  CURFILE="$FILESDIR""/""$i"
-  CURTMP="$TMPDIR/svg/$i"
-  TMPOUT="$TMPDIR""/""$(basename $i .svg)"".pdf"
+  echo "  $FILESDIR/${i}"
+  CURFILE="$FILESDIR""/""${i}"
+  CURTMP="$TMPDIR/svg/${i}"
+  TMPOUT="$TMPDIR""/""$(basename "${i}" .svg)"".pdf"
   
   cp "$CURFILE" "$CURTMP"
-  
-  # Process default tags
-  sed -i "s/##DATE##/$presdate/g" "$CURTMP" # Date
-  sed -i "s/##AUTHOR##/$author/g" "$CURTMP" # Author
-  sed -i "s/##TP##/"$NSLIDES"/g" "$CURTMP"  # Total number of slides
-  sed -i "s/##CP##/$CURSLIDE/g" "$CURTMP"   # Current slide number
   
   # Process custom tags 
   for tag in $(seq 0 $(( ${#CUSTOMTAGS[@]} - 1 ))); do 
@@ -200,6 +195,12 @@ for i in ${FILES[*]}; do
     sed -i "s/$curtag/$curval/g" "$CURTMP"
   done
   
+  # Process default tags
+  sed -i "s/##DATE##/${presdate}/g" "$CURTMP" # Date
+  sed -i "s/##AUTHOR##/${author}/g" "$CURTMP" # Author
+  sed -i "s/##TP##/${NSLIDES}/g" "$CURTMP" # Total number of slides
+  sed -i "s/##CP##/$CURSLIDE/g"  "$CURTMP" # Current slide number
+  
   CURSLIDE=$(( $CURSLIDE + 1 )) # Move on to next slide
   
   # Render slide
@@ -207,11 +208,10 @@ for i in ${FILES[*]}; do
 done
 
 echo "Merging slides"
-pdftk $TMPDIR/*.pdf cat output ${OUTFILE}
+pdftk $TMPDIR/*.pdf cat output "${OUTFILE}"
 
 # Clean up
-rm -r "$RESDIR" 
-mv "$RESDIRTMP" "$RESDIR"
+cleanup
 
 echo "Created ${OUTFILE}"
 
